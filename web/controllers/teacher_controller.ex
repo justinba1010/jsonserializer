@@ -6,7 +6,9 @@ defmodule Jsonserial.TeacherController do
 
   plug :scrub_params, "data" when action in [:create, :update]
 
-  def index(conn, _params) do
+  def index(conn, params) do
+    IO.inspect(params)
+    IO.inspect(conn)
     teachers = Repo.all(Teacher)
     #Playing with the manipulation
     teachers = teachers |> Enum.map(fn(x) -> Map.from_struct(x) end)
@@ -14,9 +16,11 @@ defmodule Jsonserial.TeacherController do
     render(conn, "index.json-api", data: teachers)
   end
 
-  def create(conn, %{"data" => data = %{"type" => "teacher", "attributes" => _teacher_params}}) do
+  def create(conn, %{"data" => data = %{"type" => "teacher", "attributes" => _teacher_params}}=params) do
+    #curl -H "Content-Type: application/json" -X POST -d "{\"data\": [{\"type\": \"teacher\", \"attributes\": {\"name\": \"Justin\",\"age\": 27}}]}" http://localhost:4000/api/teachers
     changeset = Teacher.changeset(%Teacher{}, Params.to_attributes(data))
-
+    IO.inspects(params)
+    changeset = ""
     case Repo.insert(changeset) do
       {:ok, teacher} ->
         conn
